@@ -36,23 +36,44 @@ void Leap::LeapListener::onFrame( const Controller& controller )
 	HandList hands = frame.hands();
 	Leap::DirectionDetector::Direction direction;
 	bool handExtended;
+    //jurik
+    //leapActions.playLayout();
+    //takin just first gesture (gestures are defined for each finger)
+    Gesture gesture = frame.gestures()[0];
 
-
+    //*****
 	for ( int i=0; i<frame.hands().count(); i++ ) {
 		if ( hands[i].isRight() ) {
 			direction = Leap::DirectionDetector::getPalmDirection( hands[i] );
-			leapActions.changeViewAngle( direction );
+            //leapActions.changeViewAngle( direction );
+            leapActions.rotateAruco( direction );
+
+            if(gesture.type() == Gesture::TYPE_KEY_TAP){
+                qDebug()<<"rightTap";
+                    leapActions.scaleNodes(true);
+            }
 		}
 		else {
-			handExtended = Leap::FingerPositionDetector::isHandExtended( hands[i] );
+            direction = Leap::DirectionDetector::getPalmDirection( hands[i] );
+            //leapActions.changeViewAngle( direction );
+            leapActions.scaleEdges( direction );
+
+            if(gesture.type() == Gesture::TYPE_KEY_TAP){
+                    qDebug()<<"leftTap";
+                    leapActions.scaleNodes(false);
+            }
+        }
+
+            //extended hand action
+           /* handExtended = Leap::FingerPositionDetector::isHandExtended( hands[i] );
 			if ( handExtended ) {
-				leapActions.startMovingForward();
+                leapActions.startMovingForward();
 			}
 			else {
-				leapActions.stopMovingForward();
-			}
+                leapActions.stopMovingForward();
+            }*/
+
 		}
-	}
 
 	//std::cout << "id: " << frame.id();
 	/*

@@ -1173,6 +1173,62 @@ QWidget* CoreWindow::createMoreFeaturesTab( QFrame* line )
 	lMore->addRow( b_git_lua_graph );
 	lMore->addRow( chb_git_changeCommits );
 
+    //jurik
+    line = createLine();
+    lMore->addRow( line );
+    lMore->addRow( new QLabel( tr( "Light and Shadow" ) ) );
+
+    chb_light = new QCheckBox( "&Custom light" );
+    chb_light->setChecked( false );
+    lMore->addRow( chb_light );
+    connect( chb_light, SIGNAL( clicked() ), this, SLOT( lightClicked() ) );
+
+    chb_shadow = new QCheckBox( "&Shadow" );
+    chb_shadow->setChecked( false );
+    lMore->addRow( chb_shadow );
+    connect( chb_shadow, SIGNAL( clicked() ), this, SLOT( shadowClicked() ) );
+
+    chb_base = new QCheckBox( "&Base" );
+    chb_base->setChecked( false );
+    lMore->addRow( chb_base );
+    connect( chb_base, SIGNAL( clicked() ), this, SLOT( baseClicked() ) );
+
+    chb_axes = new QCheckBox( "&Axes" );
+    chb_axes->setChecked( false );
+    lMore->addRow( chb_axes );
+    connect( chb_axes, SIGNAL( clicked() ), this, SLOT( axesClicked() ) );
+
+
+    line = createLine();
+    lMore->addRow( line );
+
+    b_scale_default = new QPushButton();
+    b_scale_default->setText( "Scale graph" );
+    b_scale_default->setMaximumWidth( 136 );
+    lMore->addRow( b_scale_default );
+    connect( b_scale_default, SIGNAL( clicked() ), this, SLOT( scaleArucoGraphToBase() ) );
+
+    b_scale_up = new QPushButton();
+    b_scale_up->setText( "+" );
+    b_scale_up->setToolTip( "Scale up" );
+    b_scale_up->setMaximumWidth( 67 );
+    connect( b_scale_up, SIGNAL( clicked() ), this, SLOT( scaleArucoGraphUp() ) );
+
+    b_scale_down = new QPushButton();
+    b_scale_down->setText( "-" );
+    b_scale_down->setMaximumWidth( 67 );
+    b_scale_down->setToolTip( "Scale down" );
+    connect( b_scale_down, SIGNAL( clicked() ), this, SLOT( scaleArucoGraphDown() ) );
+
+    lMore->addRow( b_scale_up, b_scale_down );
+
+    b_rotate_graph = new QPushButton();
+    b_rotate_graph->setText( "Rotate graph" );
+    b_rotate_graph->setMaximumWidth( 136 );
+    lMore->addRow( b_rotate_graph );
+    connect( b_rotate_graph, SIGNAL( clicked() ), this, SLOT( rotateArucoGraph() ) );
+    //*****
+
 	wMore->setLayout( lMore );
 
 	return wMore;
@@ -4304,5 +4360,93 @@ void CoreWindow::createEvolutionLuaGraph()
 	}
 	*/
 }
+
+//jurik
+void CoreWindow::lightClicked()
+{
+    // chb_light is checked
+    if ( chb_light->isChecked() ) {
+
+        this->coreGraph->getScene()->getOrCreateStateSet()->setMode( GL_LIGHT0,osg::StateAttribute::OFF );
+        this->coreGraph->getScene()->getOrCreateStateSet()->setMode( GL_LIGHT1,osg::StateAttribute::ON );
+     }
+    else {
+
+        this->coreGraph->getScene()->getOrCreateStateSet()->setMode( GL_LIGHT0,osg::StateAttribute::ON );
+        this->coreGraph->getScene()->getOrCreateStateSet()->setMode( GL_LIGHT1,osg::StateAttribute::OFF );
+    }
+}
+
+void CoreWindow::shadowClicked()
+{
+    // chb_shadow is checked
+    if ( chb_shadow->isChecked() ) {
+
+        this->coreGraph->turnOnShadows();
+     }
+    else {
+
+        this->coreGraph->turnOffShadows();
+    }
+}
+
+void CoreWindow::baseClicked()
+{
+    // chb_base is checked
+    if ( chb_base->isChecked() ) {
+
+        this->layout->pause();
+        this->coreGraph->turnOnBase();
+        this->coreGraph->scaleGraphToBase();
+        this->layout->play();
+
+     }
+    else {
+
+        this->coreGraph->turnOffBase();
+    }
+}
+
+void CoreWindow::axesClicked()
+{
+    // chb_axes is checked
+    if ( chb_axes->isChecked() ) {
+
+        this->coreGraph->turnAxes(true);
+     }
+    else {
+
+        this->coreGraph->turnAxes(false);
+    }
+}
+
+void CoreWindow::scaleArucoGraphToBase()
+{
+    this->layout->pause();
+    this->coreGraph->scaleGraphToBase();
+    this->layout->play();
+}
+
+void CoreWindow::scaleArucoGraphUp()
+{
+    this->coreGraph->scaleGraph(2);
+}
+
+void CoreWindow::scaleArucoGraphDown()
+{
+    this->coreGraph->scaleGraph(1);
+}
+
+void CoreWindow::rotateArucoGraph()
+{
+    this->coreGraph->rotateGraph(1);
+}
+
+//works only frmo softVis to ArUco
+void CoreWindow::swapManipulator()
+{
+    viewerWidget->setCameraManipulator(NULL);
+}
+//*****
 
 } // namespace QOSG
