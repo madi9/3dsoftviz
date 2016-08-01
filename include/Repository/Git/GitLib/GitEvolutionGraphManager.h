@@ -5,6 +5,7 @@
 
 #include <QString>
 #include <QMap>
+#include <QList>
 
 namespace Repository {
 namespace Git {
@@ -17,38 +18,47 @@ class GitFileDiffBlockLine;
 class GITLIB_EXPORT GitEvolutionGraphManager
 {
 public:
-    ~GitEvolutionGraphManager();
+	virtual ~GitEvolutionGraphManager();
 
-    static GitEvolutionGraphManager* getInstance();
+	static GitEvolutionGraphManager* getInstance();
 
-    virtual void setEvolutionGraph( Repository::Git::GitEvolutionGraph* evolutionGraph );
+	virtual void setEvolutionGraph( Repository::Git::GitEvolutionGraph* evolutionGraph );
 
-    virtual Repository::Git::GitEvolutionGraph* getEvolutionGraphByAuthor( QString authorName );
+	virtual GitEvolutionGraphManager* filterByAuthor( QString authorName );
 
-    virtual Repository::Git::GitEvolutionGraph* getEvolutionGraphByExtension( QString extensions );
+	virtual GitEvolutionGraphManager* filterByExtension( QString extensions );
 
+	virtual GitEvolutionGraphManager* excludeDirectories( QString directories );
+
+	virtual GitEvolutionGraphManager* createEvolutionGraphClone();
+
+	virtual GitEvolutionGraph* getFilteredEvolutionGraph();
 private:
 
-    GitEvolutionGraphManager();
+	GitEvolutionGraphManager();
 
-    virtual Repository::Git::GitEvolutionGraph* cloneEvolutionGraph();
+	virtual void cloneEvolutionGraph();
 
-    virtual Repository::Git::GitVersion* cloneVersion( Repository::Git::GitVersion* version );
+	virtual Repository::Git::GitVersion* cloneVersion( Repository::Git::GitVersion* version );
 
-    virtual Repository::Git::GitFile* cloneFile( Repository::Git::GitFile* file );
+	virtual Repository::Git::GitFile* cloneFile( Repository::Git::GitFile* file );
 
-    virtual Repository::Git::GitFileDiffBlock* cloneDiffBlock( Repository::Git::GitFileDiffBlock* block );
+	virtual Repository::Git::GitFileDiffBlock* cloneDiffBlock( Repository::Git::GitFileDiffBlock* block );
 
-    virtual Repository::Git::GitFileDiffBlockLine* cloneDiffBlockLine( Repository::Git::GitFileDiffBlockLine* line );
+	virtual Repository::Git::GitFileDiffBlockLine* cloneDiffBlockLine( Repository::Git::GitFileDiffBlockLine* line );
 
-    static Repository::Git::GitEvolutionGraphManager* instance;
+	static Repository::Git::GitEvolutionGraphManager* instance;
 
-    static Repository::Git::GitEvolutionGraph* masterEvolutionGraph;
+	static Repository::Git::GitEvolutionGraph* masterEvolutionGraph;
 
-    QMap<QString, Repository::Git::GitFile*>* filterVersionByExtensions( Repository::Git::GitVersion* version, QString extensions );
+	Repository::Git::GitEvolutionGraph* clonedEvolutionGraph;
+
+	QMap<QString, Repository::Git::GitFile*>* filterVersionByExtensions( Repository::Git::GitVersion* version, QString extensions );
+
+	QMap<QString, Repository::Git::GitFile*>* filterVersionByDirectories( Repository::Git::GitVersion* version, QString directories );
 
 
-    QList<Repository::Git::GitVersion*> filterVersionByAuthor( Repository::Git::GitEvolutionGraph* evolutionGraph, QString author );
+	QList<Repository::Git::GitVersion*> filterVersionByAuthor( Repository::Git::GitEvolutionGraph* evolutionGraph, QString author );
 
 }; // class
 } // namespace
